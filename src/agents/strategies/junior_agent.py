@@ -2,66 +2,121 @@ from src.agents.base_agent import Analyst
 
 class JuniorAgent(Analyst):
     """Junior analyst that uses only VQA tool"""
+
     def __init__(self):
         super().__init__(
             name="Junior",
             description="A junior analyst who uses only the vanilla VQA model to generate candidate answers.",
             tools=["vqa_tool"],
             system_prompt="""
-                You are a helpful and intelligent assistant. Your goal is to answer the user's question accurately by using the tools available to you.
-
-                **Available Tools:**
+            You are an AI assistant executing a task. Analyze the current state of your progress and decide the next best action.
+            
+            ## Available Tools:
                 - **vqa_tool**: Use this tool for Visual Question Answering directly on the image to get initial candidate answers.
+                - **wikipedia**: Use this tool to retrieve factual, encyclopedic knowledge from external sources relevant to the question.
+            
+            ## Task
+            Your goal is gather all the information to answer the user's question based on the provided image and context.
+            To build a complete answer, you should use all available tools to gather all types of Information. 
+            User Question: {question}
+            Context: {context}
 
-                **Information Gathering Policy:**
-                To ensure a high-quality and well-supported answer, you **must** gather the following one type of information before using the "Finish" action.
-                1.  **Visual Evidence**: The initial answer based purely on what is visible in the image (using `vqa_tool`).
+            ## Current Progress Summary
+            - Tool Calls Made: {count_of_tool_calls}
 
-                **Instructions:**
-                1.  Create a step-by-step plan to gather the one type of information listed in the Policy.
-                2.  Execute your plan by calling the appropriate tools sequentially.
-                3.  After you have gathered all one type of information, review everything you have collected.
-                4.  Only when you are confident that you have a complete picture, respond with "Finish" followed by the answer.
+            ## Information Gathered 
+            ### Answer Candidate:
+            {answer_candidate}
 
-                **Use the following format:**
-                Thought: Your reasoning for choosing the next action.
-                Action: The name of the tool you will use (e.g., `vqa_tool`).
-                Action Input: The input required for that tool.
-                Observation: The result returned by the tool.
-                (Repeat as needed)
+            ## Your Decision
+            Based on the information you have, carefully review the user's question again.
+            - If you have enough information to provide a complete and accurate answer, your next action is return "Finish".
+            - If the current information is insufficient, choose ONE tool from the available list to gather the missing information. Do not repeat a tool call if you already have the necessary information.
+            """,
+            rationale_system_prompt="""
+                Your task is to generate a logical explanation in Vietnamese. Do not include a final concluding sentence. Synthesize the visual details from 'Candidates', 'Context'.
+                Important: The 'Candidates' list is a suggestion and may be misleading or entirely incorrect.
 
-                **Input:**
-                - **Context:** `{context}`
-                - **Question:** `{question}`
+                ### EXAMPLE 1
+                Context: A wooden dining table is shown with a glossy finish.
+                Question: Bàn được làm bằng gì?
+                Candidates: Gỗ (0.92), Kim loại (0.05), Nhựa (0.02), Đá (0.01), Kính (0.00)
+                Rationale: Mô tả về một 'bàn ăn bằng gỗ' (wooden dining table) có bề mặt bóng. Trong các lựa chọn vật liệu, 'Gỗ' là phương án khớp trực tiếp với mô tả này.
+
+                ### EXAMPLE 2
+                Context: A photo of a single banana that has been partially peeled.
+                Question: Quả chuối có đóng không?
+                Candidates: không (0.95), có (0.05), bị thối (0.00), còn xanh (0.00), bằng nhựa (0.00)
+                Rationale: Mô tả về một quả chuối 'đã được bóc một phần' (partially peeled) cho thấy nó không còn ở trạng thái đóng/nguyên vẹn, tương ứng với lựa chọn 'không'.
+
+                ### EXAMPLE 3
+                Context: A herd of zebras are gathered on a grassy field.
+                Question: Các con vật đang làm gì?
+                Candidates: Gặm cỏ (0.88), Đứng im (0.09), Chạy (0.02), Uống nước (0.01), Nằm nghỉ (0.00)
+                Rationale: Bối cảnh một đàn ngựa vằn tụ tập trên một cánh đồng cỏ gợi ý hoạt động phổ biến nhất của chúng là gặm cỏ, đây là lựa chọn hợp lý nhất trong các phương án.
+
+                ### EXAMPLE 4
+                Context: A domestic cat with orange fur is sleeping on a sofa.
+                Question: Con vật trong ảnh là gì?
+                Candidates: Mèo (0.90), Chó (0.05), Hổ (0.04), Sư tử (0.01)
+                Rationale: Mô tả về một 'con mèo nhà' (domestic cat) lông màu cam. Trong các lựa chọn, 'Mèo' là phương án nhận dạng chính xác loài vật này.
+                ### END OF EXAMPLES
+
+                ### Now solve the new task
+                Context: {context}
+                Question: {question}
+                Candidates: {candidates}
+                Rationale:
             """,
             final_system_prompt="""
-                You are a multiple‑choice visual‑question‑answering assistant.
-                For **each** task you receive:
-                - **Context:** <plain‑text description of the image or scene>  
-                - **Question:** <single question>  
-                - **Candidates:** <A list of possible answers with probabilities, generated by a vision model. Treat these as suggestions, not a definitive list.>
+                You are an visual-question-answering assistant that generates the most accurate answer based on evidence.
+                For each task you receive:
+                - **Context:** <plain-text description of the image or scene>
+                - **Question:** <single question>
+                - **Candidates:** <A list of possible answers with probabilities, generated by a vision model>
+                - **Rationale:** <The core reasoning that justifies the final answer.>
 
-                ### Instructions  
-                1. Read **Context**, **Question**, **Candidates** carefully.
-                2. The best answer might be one of the `Candidates`, or it might be a more precise answer you synthesize from the combined evidence. **Do not be limited by the initial candidates.**
-                3. After determining the best answer, provide a concise, user-friendly explanation in Vietnamese that justifies your answer.
-                4. Answer in the exact format below:
-                    - Answer:
-                    - Evidence: 
+                ### Instructions
+                1. Read **Context**, **Question**, **Candidates**, and **Rationale** carefully.
+                2. The 'Candidates' are only suggestions and may be incorrect. Your final answer must be based on the evidence in the `Rationale`. If the `Rationale` points to an answer not in the `Candidates` list, you must ignore the list.
+                3. Answer each question concisely in a single word or short phrase.
+                4. The final answer MUST be in Vietnamese, matching the language of the Question.
 
-                ### FORMAT EXAMPLE  
-                Context: A photo shows a ripe red apple placed beside a small bunch of ripe bananas on a wooden kitchen table.
-                Question: Loại quả nào trong hình thường có màu vàng khi chín?
-                Candidates: Chuối (0,85), Chanh (0,12), Táo (0,10), Nho (0,08), Anh đào (0,05)
-                Answer: Chuối | Evidence: Context mô tả “chùm chuối” xuất hiện; Question hỏi trái nào “thường có màu vàng khi chín”; trong Candidates, “banana” có xác suất cao nhất 0.85, khớp hoàn toàn với mô tả—vì thế đáp án chắc chắn là Quả chuối.
+                ### EXAMPLE 1
+                Context: A wooden dining table is shown with a glossy finish.
+                Question: Bàn được làm bằng gì?
+                Candidates: Gỗ (0.92), Kim loại (0.05), Nhựa (0.02), Đá (0.01), Kính (0.00)
+                Rationale: Mô tả về một 'bàn ăn bằng gỗ' (wooden dining table) có bề mặt bóng. Trong các lựa chọn vật liệu, 'Gỗ' là phương án khớp trực tiếp với mô tả này.
+                Answer: Gỗ
+
+                ### EXAMPLE 2
+                Context: A photo of a single banana that has been partially peeled.
+                Question: Quả chuối có đóng không?
+                Candidates: không (0.95), có (0.05), bị thối (0.00), còn xanh (0.00), bằng nhựa (0.00)
+                Rationale: Mô tả về một quả chuối 'đã được bóc một phần' (partially peeled) cho thấy nó không còn ở trạng thái đóng/nguyên vẹn, tương ứng với lựa chọn 'không'.
+                Answer: không
+
+                ### EXAMPLE 3
+                Context: A red double-decker bus is on a city street.
+                Question: Xe buýt có dừng lại không?
+                Candidates: có (0.89), không (0.06), đang đón khách (0.03), đang chạy (0.01), không rõ (0.01)
+                Rationale: Phân tích hình ảnh cho thấy các bánh xe của xe buýt không có dấu hiệu chuyển động hay mờ nhòe. Điều này cho thấy chiếc xe buýt đang đứng yên tại thời điểm chụp ảnh.
+                Answer: có
+
+                ### EXAMPLE 4
+                Context: A domestic cat with orange fur is sleeping on a sofa.
+                Question: Con vật trong ảnh là gì?
+                Candidates: Chó (0.75), Hổ (0.15), Sư tử (0.08), Chuột (0.02)
+                Rationale: Phân tích hình ảnh cho thấy một loài động vật bốn chân, có lông màu cam, tai nhọn và ria mép dài. Đây là những đặc điểm không thể nhầm lẫn của một con mèo nhà.
+                Answer: Mèo
                 ### END OF EXAMPLE
-                
-                ### Now solve the new task  
-                Context: {context}  
-                Question: {question}  
-                Candidates: {candidates}  
-                Answer:  
-                Evidence:
+
+                ### Now solve the new task
+                Context: {context}
+                Question: {question}
+                Candidates: {candidates}
+                Rationale: {rationale}
+                Answer:
             """
         )
 

@@ -19,7 +19,7 @@ class ViReAgentState(MessagesState):
 
     #---- Explanation ----#
     explanation: str
-    evidences: Annotated[List[Dict[str, str]], operator.add]
+    rationales: Annotated[List[Dict[str, str]], operator.add]
 
 class ViReJuniorState(MessagesState):
     question: str
@@ -33,8 +33,8 @@ class ViReJuniorState(MessagesState):
     results: Dict[str, str]
     final_answer: str
 
-    #---- Evidence ----#
-    evidences: Dict[str, str]
+    #---- Rationale ----#
+    rationales: Dict[str, str]
 
 class ViReSeniorState(MessagesState):
     question: str
@@ -44,12 +44,11 @@ class ViReSeniorState(MessagesState):
     count_of_tool_calls: int
     answer_candidate: str
     kbs_knowledge: Annotated[List[str], operator.add]
-
     # Results
     results: Dict[str, str]
 
-    #---- Evidence ----#
-    evidences: Dict[str, str]
+    #---- Rationale ----#
+    rationales: Dict[str, str]
 
 class ViReManagerState(MessagesState):
     question: str
@@ -64,17 +63,17 @@ class ViReManagerState(MessagesState):
     # Results
     results: Dict[str, str]
 
-    #---- Evidence ----#
-    evidences: Dict[str, str]
+    #---- Rationale ----#
+    rationales: Dict[str, str]
 
-class JuniorOutputState(MessagesState):
+class JuniorOutputState():
     results: Optional[Dict[str, str]] = None
-    evidences: Optional[Dict[str, str]] = None
+    rationales: Optional[Dict[str, str]] = None
 
-class SeniorOutputState(MessagesState):
+class SeniorOutputState():
     results: Optional[Dict[str, str]] = None
-    evidences: Optional[Dict[str, str]] = None
+    rationales: Optional[Dict[str, str]] = None
 
-class ManagerOutputState(MessagesState):
+class ManagerOutputState():
     results: Optional[Dict[str, str]] = None
-    evidences: Optional[Dict[str, str]] = None
+    rationales: Optional[Dict[str, str]] = None
