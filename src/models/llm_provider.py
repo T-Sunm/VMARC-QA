@@ -16,7 +16,7 @@ def get_llm(with_tools: Optional[List[Any]] = None, temperature: float = 0):
     """
     llm = ChatOpenAI(
         base_url="http://127.0.0.1:1234/v1",   
-        api_key=os.environ.get("GROQ_API_KEY"),        
+        api_key="dummy",        
         model="Qwen/Qwen3-1.7B",      
         temperature=temperature,
     )

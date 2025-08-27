@@ -1,4 +1,6 @@
-# main.py - Even simpler
+import os
+
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 import argparse
 from experiments.full_system.TriLLMage import FullSystemVQAXExperiment
 
@@ -7,7 +9,7 @@ def main():
     parser.add_argument("--experiment", type=str, required=True,
                        choices=["full_system", "ablation_no_judge"],
                        help="Experiment to run")
-                       
+
     parser.add_argument("--samples", type=int, default=300,
                        help="Number of samples to process")
     
@@ -15,7 +17,7 @@ def main():
     
     # Directly run the selected experiment
     if args.experiment == "full_system":
-        experiment = FullSystemVQAXExperiment(args.config, args.samples)
+        experiment = FullSystemVQAXExperiment(args.samples)
     
     # Run experiment
     print(f"Starting {experiment.experiment_name}...")
@@ -26,3 +28,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

@@ -17,11 +17,9 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 class BaseExperiment(ABC):
-    def __init__(self, config_path: str, sample_size: int = None):
-        self.config_path = config_path
+    def __init__(self, sample_size: int = None):
         self.sample_size = sample_size
         self.evaluator = VQAXEvaluator()
-        self.experiment_name = self.__class__.__name__
         
         # Create results directory
         self.results_dir = f"results/{self.experiment_name}"
@@ -53,7 +51,7 @@ class BaseExperiment(ABC):
             samples.append(sample)
         
         # Limit samples if specified
-        if self.sample_size:
+        if self.sample_size != 0:
             samples = samples[:self.sample_size]
             
         return samples
@@ -190,8 +188,11 @@ class BaseExperiment(ABC):
     
     def save_results(self, results: Dict[str, Any]):
         """Save experiment results"""
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"{self.experiment_name}_results_{timestamp}.json"
+
+        if self.sample_size != 0:
+            filename = f"{self.experiment_name}_results_{self.sample_size}.json"
+        else:
+            filename = f"{self.experiment_name}_results_full.json"
         filepath = os.path.join(self.results_dir, filename)
         
         with open(filepath, 'w', encoding='utf-8') as f:

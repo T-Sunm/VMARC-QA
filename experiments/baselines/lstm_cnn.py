@@ -13,7 +13,7 @@ from huggingface_hub import hf_hub_download
 import random
 
 # Add ViVQA-X baseline paths for model + dataset
-PROJ_ROOT = Path(__file__).resolve().parents[1]
+PROJ_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJ_ROOT)) # For import from src.evaluation.metrics_x
 BASELINE_DIR = PROJ_ROOT / "ViVQA-X" / "src" / "models" / "baseline_model"
 sys.path.append(str(BASELINE_DIR))
@@ -39,7 +39,7 @@ def invert_vocab(d: Dict[Any, Any]) -> Dict[Any, Any]:
     return {v: k for k, v in d.items()}
 
 
-def load_and_adapt_json(json_path: str, limit: int = None, random_subset: bool = False, seed: int = 42) -> Dict[str, Any]:
+def load_and_adapt_json(json_path: str, limit: int = None, random_subset: bool = False, seed: int = 42):
     """
     Accept both:
     - list[ {question_id, question, answer, explanation, image_name} ]
@@ -52,15 +52,14 @@ def load_and_adapt_json(json_path: str, limit: int = None, random_subset: bool =
     if isinstance(data, dict):
         items = list(data.items())
         if limit and limit > 0:
-            if random_subset:
-                random.seed(seed); random.shuffle(items)
+            random.seed(seed); random.shuffle(items)
             items = items[:limit]
         return {k: v for k, v in items}
 
     if not isinstance(data, list):
         raise ValueError("Unsupported JSON format. Expect list or dict.")
 
-    if limit and limit > 0:
+    if limit and limit > 0:  # Chỉ chạy khi limit có giá trị và > 0
         if random_subset:
             random.seed(seed)
             data = random.sample(data, k=min(limit, len(data)))
@@ -124,9 +123,7 @@ def main():
     idx2answer = invert_vocab(answer2idx)
 
     # Load and adapt data
-    data = load_and_adapt_json(args.json_path, limit=(args.limit if args.limit > 0 else None),
-                           random_subset=getattr(args, "random_subset", False),
-                           seed=getattr(args, "seed", 42))
+    data = load_and_adapt_json(args.json_path, limit=(args.limit if args.limit > 0 else None), random_subset=args.random_subset, seed=args.seed)
 
     # Dataset with fixed vocabs from checkpoint to avoid mismatch
     ds = VQA_X_Dataset(

@@ -44,7 +44,7 @@ class ManagerAgent(Analyst):
 
 
             rationale_system_prompt="""
-                Your task is to generate a logical explanation in Vietnamese, around 10-15 words. Do not include a final concluding sentence. Synthesize the visual details from 'Candidates', 'Context', 'Object_Analysis', with the facts from 'KBs_Knowledge'.
+                Your task is to generate a logical explanation in Vietnamese. Do not include a final concluding sentence. Synthesize the visual details from 'Candidates', 'Context', 'Object_Analysis', with the facts from 'KBs_Knowledge'.
                 Important: The 'Candidates' list is a suggestion and may be misleading or entirely incorrect.
 
                 ### EXAMPLE 1

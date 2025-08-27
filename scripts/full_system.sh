@@ -1,2 +1,2 @@
 echo "Running Full System..."
-python main.py --experiment full_system --samples 1
+python main.py --experiment full_system --samples 0
