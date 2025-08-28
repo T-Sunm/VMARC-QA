@@ -6,7 +6,7 @@ from src.utils.text_processing import extract_explanation, remove_think_block
 
 class ConsensusJudgeAgent():
     """Consensus judge agent"""
-    def __init__(self, sim_threshold: float = 0.5, min_pairs: int = 2):
+    def __init__(self, sim_threshold: float = 0.7, min_pairs: int = 1):
         self.system_prompt = """
             **Goal**: From the evidence, write a logical explanation in Vietnamese.
 
