@@ -119,6 +119,10 @@ class BaseExperiment(ABC):
             else:
                 print(f"❌ Sample failed: {result['error']}")
         
+    
+        # Clean up memory (avoid oom in compute metrics)
+        self.cleanup(graph)
+
         # Compute metrics
         metrics = self.compute_metrics(results)
         
@@ -135,9 +139,7 @@ class BaseExperiment(ABC):
         
         # Save results
         self.save_results(final_results)
-        
-        # Clean up memory
-        self.cleanup(graph)
+
         
         return final_results
     
