@@ -18,6 +18,12 @@ Our approach mimics a human analytical workflow using three distinct agents orch
 
 This hierarchical process ensures that the final output is robust, verifiable, and explainable, bridging the gap between simple VQA and true visual understanding.
 
+## 🏗 Framework
+
+The overall architecture of the multi-agent system is shown below:
+
+![Framework](./assets/framework.png) 
+
 ## 🚀 Quick Start
 
 This section provides a complete, step-by-step guide to setting up a clean environment and running the project.
@@ -154,6 +160,19 @@ python ViVQA/beit3/HCMUS/main.py --train-path ... --val-path ...
 # Command to run evaluation tests
 python -m pytest src/evaluation/
 ```
+## 📊 Results
+
+Performance comparison on the **ViVQA-X test set**.  
+Metrics include: BLEU (B1–B4), METEOR (M), ROUGE-L (R-L), CIDEr (C), SPICE (S), BERTScore-MaxRef (BS-MR), and Answer Accuracy (Acc).  
+
+| Method              | B1    | B2    | B3    | B4    | M     | R-L   | C     | S    | BS-MR | Acc   |
+|---------------------|-------|-------|-------|-------|-------|-------|-------|------|-------|-------|
+| Heuristic Baseline  | 8.46  | 3.0   | 1.3   | 0.6   | 8.5   | 7.9   | 0.5   | 0.6  | 70.8  | 10.1  |
+| LSTM-Generative     | 22.6  | 11.7  | 6.2   | 3.2   | 16.4  | 23.7  | 34.1  | 4.3  | 72.2  | 53.8  |
+| **NLX-GPT**         | **42.4** | **27.8** | **18.5** | **12.4** | 20.4  | **32.8** | **51.4** | **5.0** | **76.3** | 53.7  |
+| OFA-X               | 30.1  | 22.5  | 10.9  | 9.2   | 17.6  | 25.4  | 25.7  | 3.9  | 68.9  | 50.5  |
+| ReRe                | 34.0  | 21.2  | 13.8  | 9.0   | **20.8** | 29.4  | 35.5  | 4.2  | 74.9  | 47.5  |
+| **VMARC-QA (ours)** | 27.5  | 14.8  | 8.1   | 4.4   | 17.6  | 22.4  | 23.6  | 4.0  | 76.0  | **64.8** |
 
 ## 📜 Citation
 
