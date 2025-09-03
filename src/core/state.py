@@ -59,7 +59,7 @@ class ViReManagerState(MessagesState):
     answer_candidate: str
     kbs_knowledge: Annotated[List[str], operator.add]
     object_analysis: Annotated[List[str], operator.add]
-    lms_knowledge: Annotated[List[str], operator.add]
+    llm_knowledges: Annotated[List[str], operator.add]
     # Results
     results: Dict[str, str]
 

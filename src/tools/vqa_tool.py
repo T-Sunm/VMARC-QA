@@ -2,6 +2,7 @@ from PIL import Image
 import requests
 from langchain_core.tools import tool
 from typing import Union
+from models.llm_provider import get_llm_knowledge_base
 from src.tools.dam_tools import dam_candidate_answers, dam_caption_image, dam_extract_knowledge, describe_object_with_prompt
 
 VQA_API_URL = "http://localhost:1235/vqa/predict_base64"
@@ -35,11 +36,6 @@ def vqa_tool(image: str, question: str) -> str:
 def dam_caption_image_tool(image: str, object_name: str) -> str:
     """Identifies and provides a detailed description of a specific object in an image based on a text prompt."""
     return describe_object_with_prompt(image, object_name)
-
-@tool
-def lm_knowledge(image: str) -> str:
-    """Extract 2–3 background-knowledge facts about the scene to help reason toward an answer."""
-    return dam_extract_knowledge(image)
 
 
 def vqa_tool_dam(image: str, question: str) -> str:

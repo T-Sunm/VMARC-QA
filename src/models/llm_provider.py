@@ -1,7 +1,6 @@
 from langchain_openai import ChatOpenAI
 from typing import Optional, List, Any
-from pydantic import SecretStr
-import os
+
 
 def get_llm(with_tools: Optional[List[Any]] = None, temperature: float = 0):
     """
@@ -23,6 +22,16 @@ def get_llm(with_tools: Optional[List[Any]] = None, temperature: float = 0):
     
     if with_tools:
         llm = llm.bind_tools(with_tools)
+    
+    return llm
+
+def get_llm_knowledge_base(temperature: float = 0):
+    llm = ChatOpenAI(
+        base_url="http://127.0.0.1:1236/v1",   
+        api_key="dummy",        
+        model="meta-llama/Llama-2-7b-chat-hf",      
+        temperature=temperature,
+    )
     
     return llm
 

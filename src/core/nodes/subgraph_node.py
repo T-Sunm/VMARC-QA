@@ -21,22 +21,23 @@ def tool_node(state: Union[ViReJuniorState, ViReSeniorState, ViReManagerState],
         print("Agent: ", state["analyst"].name, "tool_name: ", tool_name, "args: ", tool_call["args"])
         
         try:
-            if tool_name == "vqa_tool" or tool_name == "lm_knowledge" or tool_name == "analyze_image_object":
+            if tool_name == "vqa_tool" or tool_name == "analyze_image_object":
                 tool_call['args']['image'] = state.get("image")
                 tool_call["args"]["image"] = pil_to_base64(tool_call['args']['image']) 
                 result = tools_registry[tool_name].invoke(tool_call["args"])
                 if tool_name == "vqa_tool":
                     updates["answer_candidate"] = result
-                elif tool_name == "lm_knowledge":
-                    updates["lms_knowledge"] = [result]
                 elif tool_name == "analyze_image_object":
                     updates["object_analysis"] = [result]
-                
-            elif tool_name in ["arxiv", "wikipedia"]:
+
+            elif tool_name in ["arxiv", "wikipedia", "llm_knowledge"]:
                 raw_result = tools_registry[tool_name].invoke(tool_call["args"])
+                if tool_name == "llm_knowledge":
+                    updates["llm_knowledges"] = [raw_result]
+                else:
+                    processed_result = _process_knowledge_result(raw_result, tool_name)
+                    updates["kbs_knowledge"] = [processed_result]
                 print(f"Agent: {state['analyst'].name} - Tool: {tool_name}")
-                processed_result = _process_knowledge_result(raw_result, tool_name)
-                updates["kbs_knowledge"] = [processed_result]
             else:
                 result = f"Unknown tool: {tool_name}"
 
@@ -84,7 +85,7 @@ def call_agent_node(state: Union[ViReJuniorState, ViReSeniorState, ViReManagerSt
         'answer_candidate': state.get('answer_candidate', ''),
         'kbs_knowledge': "\n".join(state.get('kbs_knowledge', [])),
         'object_analysis': "\n".join(state.get('object_analysis', [])),
-        'lms_knowledge': "\n".join(state.get('lms_knowledge', [])),
+        'LLM_Knowledge': "\n".join(state.get('llm_knowledges', [])),
     }
     
     format_dict = {key: format_values[key] for key in placeholders if key in format_values}
@@ -113,7 +114,7 @@ def rationale_node(state: Union[ViReJuniorState, ViReSeniorState, ViReManagerSta
             'question': state.get("question", ""),
             'candidates': state.get("answer_candidate", ""),
             'KBs_Knowledge': "\n".join(state.get("kbs_knowledge", [])),
-            'LMs_Knowledge': "\n".join(state.get("lms_knowledge", [])),
+            'LLM_Knowledge': "\n".join(state.get("llm_knowledges", [])),
             'Object_Analysis': "\n".join(state.get("object_analysis", []))
     }
 

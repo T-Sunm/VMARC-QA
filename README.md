@@ -79,6 +79,16 @@ vllm serve Qwen/Qwen3-1.7B \
   --tool-call-parser hermes \
   --trust-remote-code
 ```
+
+```bash
+CUDA_VISIBLE_DEVICES=0 \
+vllm serve meta-llama/Llama-2-7b-chat-hf \
+  --port 1236 \
+  --dtype auto \
+  --gpu-memory-utilization 0.6 \
+  --max-model-len 4096 
+
+```
 ```bash
 #command to run eval-lstm-cnn
 python script/eval_checkpoint_vivqax.py \

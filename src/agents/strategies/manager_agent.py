@@ -8,14 +8,14 @@ class ManagerAgent(Analyst):
         super().__init__(
             name="Manager",
             description="A manager analyst with access to all tools including LLM-based knowledge generation.",
-            tools=["vqa_tool", "wikipedia", "analyze_image_object"],
+            tools=["vqa_tool", "wikipedia", "llm_knowledge"],
             system_prompt = """
             You are an AI assistant executing a task. Analyze the current state of your progress and decide the next best action.
             
             ## Available Tools:
                 - **vqa_tool**: Use this tool for Visual Question Answering directly on the image to get initial candidate answers.
                 - **wikipedia**: Use this tool to retrieve factual, encyclopedic knowledge from external sources relevant to the question.
-                - **analyze_image_object**: Use this tool to get a detailed, knowledge-rich description of a *specific object* in the image.
+                - **llm_knowledge**: Generate background knowledge and common-sense context using the LLM.
             
             ## Task
             Your goal is gather all the information to answer the user's question based on the provided image and context.
@@ -30,8 +30,8 @@ class ManagerAgent(Analyst):
             ### Answer Candidate:
             {answer_candidate}
 
-            ### Visual Analysis:
-            {object_analysis}
+            ### LLM_Knowledge:
+            {LLM_Knowledge}
 
             ### Factual Knowledge:
             {kbs_knowledge}
@@ -52,7 +52,7 @@ class ManagerAgent(Analyst):
                 Question: Bàn được làm bằng gì?
                 Candidates: Gỗ (0.92), Kim loại (0.05), Nhựa (0.02), Đá (0.01), Kính (0.00)
                 KBs_Knowledge: Materials that are brown, smooth, and shiny are often polished or varnished wood.
-                Object_Analysis: The object is a table. Its surface is observed to be brown, smooth, and shiny.
+                LLM_Knowledge: A dining table is a piece of furniture for eating meals. Wood is a common material for tables and can be given a glossy finish with varnish or polish.
                 Rationale: Bề mặt của bàn có màu nâu, mịn và sáng bóng, là đặc điểm của gỗ.
 
                 ### EXAMPLE 2
@@ -60,7 +60,7 @@ class ManagerAgent(Analyst):
                 Question: Quả chuối có đóng không?
                 Candidates: không (0.95), có (0.05), bị thối (0.00), còn xanh (0.00), bằng nhựa (0.00)
                 KBs_Knowledge: A banana is considered 'not closed' or 'open' when its peel is removed to expose the edible fruit inside.
-                Object_Analysis: The object is a banana with its yellow peel partially pulled back. The inner, edible part of the fruit is visible.
+                LLM_Knowledge: Peeling a fruit involves removing its outer skin. An 'open' or 'unclosed' state implies that this process has started, revealing the interior.
                 Rationale: Quả chuối đã được bóc vỏ một phần, làm lộ ra phần ruột bên trong.
 
                 ### EXAMPLE 3
@@ -68,7 +68,7 @@ class ManagerAgent(Analyst):
                 Question: Các con vật đang làm gì?
                 Candidates: Gặm cỏ (0.88), Đứng im (0.09), Chạy (0.02), Uống nước (0.01), Nằm nghỉ (0.00)
                 KBs_Knowledge: Herbivores like zebras eat grass by lowering their mouths to the ground. This action is called grazing.
-                Object_Analysis: A group of zebras is visible. Their heads are lowered, and their mouths are positioned close to the ground where the grass is.
+                LLM_Knowledge: Zebras are herbivores whose diet consists of grasses. Grazing is the act of feeding on grass, which involves an animal lowering its head to the ground.
                 Rationale: Những con ngựa vằn đang cúi đầu và miệng của chúng ở gần bãi cỏ.
 
                 ### EXAMPLE 4 
@@ -76,7 +76,7 @@ class ManagerAgent(Analyst):
                 Question: Người đàn ông đang làm gì?
                 Candidates: đi bộ (0.65), đứng im (0.20), nói chuyện (0.10), chạy (0.05)
                 KBs_Knowledge: The action of sitting on and controlling a horse is called 'riding a horse' (cưỡi ngựa).
-                Object_Analysis: The men are sitting on top of horses.
+                LLM_Knowledge: Police officers on horseback are known as mounted police. The action of controlling a horse while seated on its back is called 'riding'.
                 Rationale: Phân tích hình ảnh cho thấy hai người đàn ông đang ngồi trên lưng ngựa.
                 ### END OF EXAMPLES
 
@@ -85,7 +85,7 @@ class ManagerAgent(Analyst):
                 Question: {question}
                 Candidates: {candidates}
                 KBs_Knowledge: {KBs_Knowledge}
-                Object_Analysis: {Object_Analysis}
+                LLM_Knowledge: {LLM_Knowledge}
                 Rationale:
             """,
             final_system_prompt="""
