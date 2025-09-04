@@ -1,16 +1,16 @@
 import os
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 import argparse
-from experiments.full_system.TriLLMage import FullSystemVQAXExperiment
+from experiments.full_system.VMARC_QA import FullSystemVQAXExperiment
 from experiments.ablation_studies.Junior import JuniorVQAXExperiment
 from experiments.ablation_studies.Senior import SeniorVQAXExperiment
 from experiments.ablation_studies.Manager import ManagerVQAXExperiment
-
+from experiments.ablation_studies.tool3 import Tool3VQAXExperiment
 def main():
     parser = argparse.ArgumentParser(description="Visual Multi-Agent Knowledge QA System")
     parser.add_argument("--experiment", type=str, required=True,
-                       choices=["full_system", "ablation_no_judge", "junior", "senior", "manager"],
+                       choices=["full_system", "ablation_no_judge", "junior", "senior", "manager", "tool3"],
                        help="Experiment to run")
 
     parser.add_argument("--samples", type=int, default=300,
@@ -27,6 +27,8 @@ def main():
         experiment = SeniorVQAXExperiment(args.samples)
     elif args.experiment == "manager":
         experiment = ManagerVQAXExperiment(args.samples)
+    elif args.experiment == "tool3":
+        experiment = Tool3VQAXExperiment(args.samples)
     else:
         raise ValueError(f"Unknown experiment: {args.experiment}")
     

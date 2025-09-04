@@ -9,7 +9,7 @@ from datetime import datetime
 from PIL import Image
 from tqdm import tqdm
 import torch
-
+from datasets import load_dataset
 from src.evaluation.metrics_x import VQAXEvaluator
 from src.utils.text_processing import normalize_answer
 
@@ -30,7 +30,11 @@ class BaseExperiment(ABC):
         
     def load_data(self) -> List[Dict]:
         """Load ViVQA-X dataset"""
-        json_path = "/mnt/VLAI_data/ViVQA-X/ViVQA-X_test.json"
+        hf_dataset = load_dataset("VLAI-AIVN/ViVQA-X", split="test")
+        question_id_to_answer_type = {
+            item['question_id']: item['answer_type'] for item in hf_dataset
+        }
+        json_path = "/mnt/VLAI_data/ViVQA-X/ViVQA-X_test.json"  
         coco_img_dir = "/mnt/VLAI_data/COCO_Images/val2014/"
         
         with open(json_path, "r", encoding="utf-8") as f:
@@ -46,7 +50,8 @@ class BaseExperiment(ABC):
                 "image_path": img_path,
                 "explanation": item["explanation"],
                 "answer": item["answer"],
-                "question_id": item["question_id"]
+                "question_id": item["question_id"],
+                "answer_type": question_id_to_answer_type[item["question_id"]]
             }
             samples.append(sample)
         
@@ -76,6 +81,7 @@ class BaseExperiment(ABC):
                 "gold_answer": sample["answer"],
                 "gold_explanation": sample["explanation"],
                 "question_id": sample["question_id"],
+                "answer_type": sample["answer_type"],
                 "success": True,
                 "error": None
             }
@@ -89,7 +95,8 @@ class BaseExperiment(ABC):
                 "final_answer": "",
                 "explanation": "",
                 "gold_answer": sample["answer"],
-                "gold_explanation": sample["explanation"]
+                "gold_explanation": sample["explanation"],
+                "answer_type": sample["answer_type"]
             }
     
     def run(self) -> Dict[str, Any]:

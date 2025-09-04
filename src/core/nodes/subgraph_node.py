@@ -21,10 +21,12 @@ def tool_node(state: Union[ViReJuniorState, ViReSeniorState, ViReManagerState],
         print("Agent: ", state["analyst"].name, "tool_name: ", tool_name, "args: ", tool_call["args"])
         
         try:
+            result_content = None
             if tool_name == "vqa_tool" or tool_name == "analyze_image_object":
                 tool_call['args']['image'] = state.get("image")
                 tool_call["args"]["image"] = pil_to_base64(tool_call['args']['image']) 
                 result = tools_registry[tool_name].invoke(tool_call["args"])
+                result_content = result
                 if tool_name == "vqa_tool":
                     updates["answer_candidate"] = result
                 elif tool_name == "analyze_image_object":
@@ -34,15 +36,16 @@ def tool_node(state: Union[ViReJuniorState, ViReSeniorState, ViReManagerState],
                 raw_result = tools_registry[tool_name].invoke(tool_call["args"])
                 if tool_name == "llm_knowledge":
                     updates["llm_knowledges"] = [raw_result]
+                    result_content = raw_result
                 else:
                     processed_result = _process_knowledge_result(raw_result, tool_name)
                     updates["kbs_knowledge"] = [processed_result]
+                    result_content = processed_result
                 print(f"Agent: {state['analyst'].name} - Tool: {tool_name}")
             else:
-                result = f"Unknown tool: {tool_name}"
+                result_content = f"Unknown tool: {tool_name}"
 
             # Remove image data from result because it's too large
-            result_content = processed_result if 'processed_result' in locals() else result
             if isinstance(result_content, dict) and 'image' in result_content:
                 result_content = {k: v for k, v in result_content.items() if k != 'image'}
             
@@ -142,7 +145,7 @@ def final_reasoning_node(state: Union[ViReJuniorState, ViReSeniorState, ViReMana
             'context': state.get("image_caption", ""),
             'question': state.get("question", ""),
             'candidates': state.get("answer_candidate", ""),
-            'rationale': state.get("rationales", [])[0].get(state["analyst"].name, "")
+            'rationale': state.get("rationales", [])[0].get(state["analyst"].name, ""),
     }
 
     print("agent: ", state["analyst"].name, "state: ", format_values)

@@ -1,7 +1,7 @@
 from experiments.base_experiment import BaseExperiment
 from src.core.graph_builder.manager_graph import ManagerGraphBuilder
-from src.tools.knowledge_tools import arxiv, wikipedia
-from src.tools.vqa_tool import vqa_tool, lm_knowledge, dam_caption_image_tool
+from src.tools.knowledge_tools import arxiv, wikipedia, llm_knowledge
+from src.tools.vqa_tool import vqa_tool, dam_caption_image_tool
 
 class ManagerVQAXExperiment(BaseExperiment):
     def __init__(self, sample_size: int = None):
@@ -14,7 +14,7 @@ class ManagerVQAXExperiment(BaseExperiment):
             "vqa_tool": vqa_tool,
             "arxiv": arxiv,
             "wikipedia": wikipedia,
-            "lm_knowledge": lm_knowledge,
+            "llm_knowledge": llm_knowledge,
             "analyze_image_object": dam_caption_image_tool,
         }
         

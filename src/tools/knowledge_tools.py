@@ -6,7 +6,7 @@ from langchain_community.utilities import (
     ArxivAPIWrapper,
     WikipediaAPIWrapper,
 )
-from models.llm_provider import get_llm_knowledge_base
+from src.models.llm_provider import get_llm_knowledge_base
 from src.utils.rate_limiter import rate_limiter
 from langchain_core.tools import tool
 
@@ -42,6 +42,7 @@ def search_wikipedia(query: str) -> str:
 
 @tool
 def llm_knowledge(caption: str, question: str) -> str:
+    """Uses the LLM to generate background knowledge, definitions, or common-sense context about key concepts found in the image caption and question."""
     prompt_template = f"""
      Please generate the background knowledge based on the key words in the context and question.
         ======
@@ -57,6 +58,4 @@ def llm_knowledge(caption: str, question: str) -> str:
     """
     """Extract 2–3 background-knowledge facts about the scene to help reason toward an answer."""
     llm = get_llm_knowledge_base(temperature=0.7)
-    return llm.invoke(prompt_template)
-
-
+    return llm.invoke(prompt_template).content

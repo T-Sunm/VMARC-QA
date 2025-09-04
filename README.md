@@ -69,7 +69,7 @@ If you are using a local model with VLLM, open a new terminal, activate the `viv
 
 ```bash
 # Command to serve a local LLM with VLLM
-CUDA_VISIBLE_DEVICES=1 \
+CUDA_VISIBLE_DEVICES=2 \
 vllm serve Qwen/Qwen3-1.7B \
   --port 1234 \
   --dtype auto \
@@ -82,10 +82,10 @@ vllm serve Qwen/Qwen3-1.7B \
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 \
-vllm serve meta-llama/Llama-2-7b-chat-hf \
+vllm serve /mnt/dataset1/pretrained_fm/meta-llama_Llama-2-7b-chat-hf \
   --port 1236 \
   --dtype auto \
-  --gpu-memory-utilization 0.6 \
+  --gpu-memory-utilization 0.7 \
   --max-model-len 4096 
 
 ```

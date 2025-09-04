@@ -29,7 +29,7 @@ def get_llm_knowledge_base(temperature: float = 0):
     llm = ChatOpenAI(
         base_url="http://127.0.0.1:1236/v1",   
         api_key="dummy",        
-        model="meta-llama/Llama-2-7b-chat-hf",      
+        model="/mnt/dataset1/pretrained_fm/meta-llama_Llama-2-7b-chat-hf",      
         temperature=temperature,
     )
     

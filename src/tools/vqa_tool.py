@@ -1,9 +1,7 @@
 from PIL import Image
 import requests
 from langchain_core.tools import tool
-from typing import Union
-from models.llm_provider import get_llm_knowledge_base
-from src.tools.dam_tools import dam_candidate_answers, dam_caption_image, dam_extract_knowledge, describe_object_with_prompt
+from src.tools.dam_tools import dam_candidate_answers, describe_object_with_prompt
 
 VQA_API_URL = "http://localhost:1235/vqa/predict_base64"
 
