@@ -6,6 +6,8 @@ from src.tools.vqa_tool import vqa_tool
 class Tool3VQAXExperiment(BaseExperiment):
     def __init__(self, sample_size: int = None):
         self.experiment_name = "tool3"
+        self.results_dir = os.path.join("results", "ablation_studies", self.experiment_name)
+        os.makedirs(self.results_dir, exist_ok=True)
         super().__init__(sample_size)
     
     def setup_system(self):
