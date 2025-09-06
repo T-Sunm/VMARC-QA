@@ -1,128 +1,136 @@
-# VMARC-QA: A Knowledge-based Multi-agent Approach for Vietnamese VQA with Rationale Explanations
+ VMARC-QA: A Knowledge-based Multi-agent Approach for Vietnamese VQA with Rationale Explanations
 
 [![Paper](https://img.shields.io/badge/Paper-PDF-b31b1b.svg)](https://github.com/T-Sunm/VMARC-QA/blob/main/2026_AICI_VMARC-QA.pdf)
 [![Code](https://img.shields.io/badge/GitHub-Repository-black)](https://github.com/T-Sunm/VMARC-QA)
 [![Dataset](https://img.shields.io/badge/Dataset-ViVQA--X-blue)](https://huggingface.co/datasets/VLAI-AIVN/ViVQA-X)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/T-Sunm/VMARC-QA/blob/main/LICENSE)
+
+---
 
 ## 📖 Introduction
 
 This is the official implementation of the paper **"A knowledge-based multi-agent approach for Vietnamese VQA with rationale explanations"**.
 
-Visual Question Answering with Natural Language Explanations (VQA-NLE) requires a model to predict a correct answer and provide a coherent rationale. This challenge is amplified for the Vietnamese language due to a lack of specialized datasets and methods.
+Visual Question Answering with Natural Language Explanations (VQA-NLE) is a major challenge for AI, especially for the Vietnamese language due to a lack of specialized datasets and methods.
 
-To address this, we introduce **VMARC-QA** (Vietnamese Multi-Agent Rationale-driven Consensus for Question Answering), the first knowledge-based multi-agent framework designed for Vietnamese VQA-NLE. Key features of VMARC-QA include:
+**VMARC-QA** (Vietnamese Multi-Agent Rationale-driven Consensus for Question Answering) is a framework designed to solve this problem. Our system uses a team of AI agents working in parallel to gather evidence, form a logical explanation, and ultimately derive a final answer.
 
--   **Hierarchical Multi-Agent Architecture**: A parallel ensemble of three agents (Junior, Senior, Manager) with different capabilities for evidence gathering.
--   **Evidence-to-Rationale Bottleneck**: A mechanism that forces the model to generate a rationale based solely on collected evidence before predicting a final answer.
--   **Dual-Stream Consensus Mechanism**: A system that aggregates answers via weighted voting while simultaneously validating the semantic consistency of rationales to ensure reliability.
+The core features of VMARC-QA include:
 
-On the **ViVQA-X** benchmark, VMARC-QA demonstrates exceptional performance in answer accuracy, achieving **64.8%**. This result is a significant improvement of over **11 percentage points** compared to strong prior baselines such as LSTM-Generative (53.8%) and NLX-GPT (53.7%). Regarding explanation quality, VMARC-QA remains highly competitive with a BERTScore of **76.0**, nearly matching the 76.3 achieved by NLX-GPT. This indicates that our approach significantly enhances the reasoning capability for correct answer prediction while generating explanations with high semantic fidelity.
+* **Multi-Agent Collaboration**: Employs an ensemble of three distinct agents (Junior, Senior, Manager) that work in parallel to gather evidence using different tools and perspectives.
+* **Verifiable Reasoning**: Implements an "evidence-to-rationale" process, ensuring that every explanation is grounded in the evidence collected by the agents, rather than being freely hallucinated.
+* **Reliable Consensus**: Aggregates agent outputs through a dual-stream mechanism: weighted voting determines the best answer, while a semantic consistency check on the rationales ensures the final output is coherent and trustworthy.
+
+On the **ViVQA-X** benchmark, VMARC-QA sets a new standard for answer accuracy while maintaining top-tier explanation quality:
+
+* 🏆 : Achieves **64.8%** answer accuracy, outperforming strong prior models like NLX-GPT by over **11 percentage points**.
+* ✍️ : Produces explanations with high semantic fidelity, confirmed by a highly competitive **BERTScore of 76.0**, nearly matching the specialized fine-tuned model NLX-GPT (76.3).
 
 The overall architecture of VMARC-QA is shown in the figure below:
 
 ![Framework](./assets/Fullpipeline.png)
 *Figure 1: Overview of the VMARC-QA Framework. Three agents independently generate answer-rationale pairs, which are then aggregated by a dual-stream consensus mechanism to produce the final output.*
 
-## Table of Contents
+
+## 📚 Table of Contents
 - [Introduction](#-introduction)
-- [Data Preparation](#-data-preparation)
 - [Quick Start](#-quick-start)
-- [Installation](#️-installation)
-- [Usage](#️-usage)
-  - [Step 1: Run the VQA Tool Server](#step-1-run-the-vqa-tool-server)
-  - [Step 2: Run the LLM Server (for Local Models)](#step-2-run-the-llm-server-for-local-models)
-  - [Step 3: Run Sample Query](#step-3-run-sample-query)
-- [Evaluation](#-evaluation)
-- [Results](#-results)
 - [Repository Structure](#-repository-structure)
+- [Installation](#️-installation)
+- [Data Preparation](#-data-preparation)
+- [Usage](#️-usage)
+- [Results](#-results)
+- [Ablation Studies](#-ablation-studies)
 - [Citation](#-citation)
 - [License](#-license)
 
 ## 🚀 Quick Start
 
-```bash
-# 1. Clone the repository
-git clone --recurse-submodules https://github.com/T-Sunm/Visual-Multi-Agent-Knowledge-QA-.git
-cd Visual-Multi-Agent-Knowledge-QA-
+This guide helps you set up the necessary environments to run VMARC-QA.
 
-# 2. Install dependencies (main environment)
-conda create -n vivqa-minh python=3.10 -y
-conda activate vivqa-minh
+```bash
+# 1. Clone the repository and its submodules
+git clone --recurse-submodules [https://github.com/T-Sunm/VMARC-QA.git](https://github.com/T-Sunm/VMARC-QA.git)
+cd VMARC-QA
+
+# 2. Set up the main environment (for the LangGraph framework)
+conda create -n vmarc-qa python=3.10 -y
+conda activate vmarc-qa
 pip install -r requirements.txt
 
-# 3. Run a sample query
-# (Ensure your data is set up and local LLM server is running if needed)
-bash scripts/full_system.sh
+# 3. Set up the tool environment (for the ViVQA-X model)
+# (Execute from the project's root directory)
+cd ViVQA-X
+conda create -n vmarc-qa-tool python=3.10 -y
+conda activate vmarc-qa-tool
+pip install -r requirements.txt
+pip install fastapi uvicorn[standard] python-multipart
+cd ..
 ```
+## 📁 Repository Structure
+
+```
+VMARC-QA/
+├── src/                 # Main framework source code
+│   ├── agents/          # Logic for Junior, Senior, and Manager agents
+│   ├── core/            # LangGraph multi-agent graph implementation
+│   ├── models/          # Pydantic models for state management
+│   ├── tools/           # VQA and knowledge retrieval tools
+│   ├── utils/           # Utility functions
+│   ├── evaluation/      # Scripts for performance evaluation
+│   └── main.py          # Main entry point for the application
+│
+├── ViVQA-X/             # Submodule containing the base Vietnamese VQA model
+│
+├── scripts/             # Scripts for running experiments and setup
+│
+├── .env.example         # Example environment file
+└── requirements.txt     # Python dependencies
+```
+
 
 ## ⚙️ Installation
 
-This section provides a detailed guide to setting up the environment.
+This section provides a detailed step-by-step guide to setting up the entire project.
 
 ### 1. Prerequisites
-- **Conda**: To manage dependencies in an isolated environment.
+- **Conda**: For managing isolated environments.
 - **Python 3.10+**
-- **API Keys**: For any external services you wish to use (e.g., OpenAI).
+- **API Keys**: Copy the `.env.example` file to `.env` and fill in your API keys (if you plan to use services like OpenAI, Wikipedia, etc.).
 
 ### 2. Environment Setup
-```bash
-# Clone the repository and navigate into the directory
-git clone --recurse-submodules https://github.com/T-Sunm/Visual-Multi-Agent-Knowledge-QA-.git
-cd Visual-Multi-Agent-Knowledge-QA-
-```
-
-**Step A: Main Graph Environment**
-```bash
-# Create a new conda environment named 'vivqa-minh' with Python 3.10
-conda create -n vivqa-minh python=3.10 -y
-conda activate vivqa-minh
-pip install -r requirements.txt
-```
-
-**Step B: VQA Tool Environment**
-```bash
-# Navigate to the submodule directory
-cd ViVQA-X
-
-# Create and set up the environment for the VQA tool
-conda create -n mak_vivqax_lstm -y
-conda activate mak_vivqax_lstm
-pip install -r requirements.txt
-pip install fastapi==0.115.12 uvicorn[standard]==0.34.2 python-multipart
-```
+Follow the steps in the [🚀 Quick Start](#-quick-start) section to install the two required conda environments: `vmarc-qa` and `vmarc-qa-tool`.
 
 ## 📦 Data Preparation
 
-The VMARC-QA system is evaluated on the **ViVQA-X** dataset, which utilizes images from the MS COCO 2014 dataset. The annotation files are included in the `ViVQA-X` submodule.
+VMARC-QA is evaluated on the **ViVQA-X** dataset, which uses images from MS COCO 2014.
 
-### 1. Create Data Directory
-First, create a `data` directory inside the project root to store all datasets.
+---
+
+### 1. Download COCO 2014 Images
+
+Create a `data` directory and download the `val2014` image set:
 
 ```bash
+# Create the directory structure
 mkdir -p data/COCO_Images data/ViVQA-X
-```
 
-### 2. Download COCO 2014 Images
-Download the validation set (`val2014`) into the newly created directory.
-
-```bash
 # Download and unzip the Validation 2014 images (~6GB)
 wget http://images.cocodataset.org/zips/val2014.zip -P data/
 unzip data/val2014.zip -d data/COCO_Images/
 rm data/val2014.zip
 ```
 
-### 3. Set Up ViVQA-X Annotations
-Copy the required annotation file (`ViVQA-X_test.json`) from the submodule into your `data` directory.
+### 2. Set Up ViVQA-X Annotations
+Copy the required annotation files from the submodule into your data directory:
 
 ```bash
 # Copy the annotation file from the submodule
 cp ViVQA-X/data/final/ViVQA-X_test.json data/ViVQA-X/
 ```
 
-### 4. Final Directory Structure
-Your project directory should now look like this:
+### 3. Final Directory Structure
+Your data directory structure should look like this when you're done:
 
 ```
 Visual-Multi-Agent-Knowledge-QA-/
@@ -135,100 +143,130 @@ Visual-Multi-Agent-Knowledge-QA-/
 │       └── ViVQA-X_test.json
 ```
 
+````markdown
 ## ▶️ Usage
 
-The system can be run with a local or remote LLM.
+The VMARC-QA system consists of multiple components. Follow these steps to run a full experiment.
+
+---
 
 ### Step 1: Run the VQA Tool Server
-Activate the `mak_vivqax_lstm` environment and start the API server from the `ViVQA-X` directory.
+
+Open a terminal, activate the `vmarc-qa-tool` environment, and start the API server from the **ViVQA-X** submodule directory.
+
 ```bash
-conda activate mak_vivqax_lstm
-cd api
+conda activate vmarc-qa-tool
+cd ViVQA-X/api
 python main.py
-```
+````
 
-### Step 2: Run the LLM Server (for Local Models)
-If you are using a local model with VLLM, open a new terminal, activate the `vivqa-minh` conda environment, and start the server. The following is an example command for the Qwen model.
+This server provides the **Aligned Candidate Generator** tool to the agents.
+
+---
+
+### Step 2: Run the LLM Server (Optional, for local models)
+
+If you are using a local LLM with VLLM, open a new terminal, activate the `vmarc-qa` environment, and start the server. The following is an example for the **Qwen** model:
 
 ```bash
+conda activate vmarc-qa
+
 # Command to serve a local LLM with VLLM
-conda activate vivqa-minh
-
-CUDA_VISIBLE_DEVICES=1 \
-vllm serve Qwen/Qwen3-1.7B \
-  --port 1234 \
-  --dtype auto \
-  --gpu-memory-utilization 0.45 \
-  --max-model-len 4096 \
-  --enable-auto-tool-choice \
-  --tool-call-parser hermes \
-  --trust-remote-code
+vllm serve Qwen/Qwen2-1.5B \
+    --port 1234 \
+    --dtype auto \
+    --gpu-memory-utilization 0.5 \
+    --max-model-len 4096 \
+    --trust-remote-code
 ```
 
-### Step 3: Run Sample Query
-Once the environment is set up and servers are running, you can run a query using the provided shell script.
+---
 
-The `scripts/full_system.sh` script is the recommended way to run an experiment. Open this file to configure your run:
-1.  **Set the number of samples**: Change the `SAMPLES` variable. Set it to `0` to run on the full dataset.
-2.  **Set data paths**: The script defaults to using the `data/` directory inside the project. If you have stored your data elsewhere, you can uncomment and edit the `TEST_JSON_PATH` and `TEST_IMAGE_DIR` variables.
+### Step 3: Run the Main Experiment
 
-For example, to use data stored in `/mnt/VLAI_data/`, you would edit the script as follows:
+Once the servers are ready, open another new terminal, activate the `vmarc-qa` environment, and run the main experiment script.
+
+**Configuration:** Open the `scripts/full_system.sh` file to customize your run:
+
+* **SAMPLES**: Set the number of samples to run. Set to `0` to run on the entire test set.
+* **TEST\_JSON\_PATH** and **TEST\_IMAGE\_DIR**: By default, the script looks for data in the `data/` directory. You can uncomment and modify these paths if your data is stored elsewhere.
+
+**Execution:**
+
 ```bash
-# --- Custom Data Paths (Optional) ---
-# If your data is located elsewhere, uncomment and modify the lines below.
-# For example:
-TEST_JSON_PATH="/mnt/VLAI_data/ViVQA-X/ViVQA-X_test.json"
-TEST_IMAGE_DIR="/mnt/VLAI_data/COCO_Images/val2014/"
-```
-
-After configuring the script, execute it from the project's root directory:
-```bash
+conda activate vmarc-qa
 bash scripts/full_system.sh
 ```
 
-## 📊 Evaluation
-*(TODO: Add instructions on how to run evaluation scripts from the `src/evaluation/` directory to reproduce the results reported in the paper.)*
+---
 
-## 📈 Results
+## 📈 Main Results
 
-Performance comparison on the **ViVQA-X test set**.  
-Metrics include: BLEU (B1–B4), METEOR (M), ROUGE-L (R-L), CIDEr (C), SPICE (S), BERTScore-MaxRef (BS-MR), and Answer Accuracy (Acc).  
+Performance comparison on the ViVQA-X test set. Our method establishes a new state-of-the-art in answer accuracy while maintaining highly competitive explanation quality.
 
-| Method              | B1    | B2    | B3    | B4    | M     | R-L   | C     | S    | BS-MR | Acc   |
-|---------------------|-------|-------|-------|-------|-------|-------|-------|------|-------|-------|
-| Heuristic Baseline  | 8.46  | 3.0   | 1.3   | 0.6   | 8.5   | 7.9   | 0.5   | 0.6  | 70.8  | 10.1  |
-| LSTM-Generative     | 22.6  | 11.7  | 6.2   | 3.2   | 16.4  | 23.7  | 34.1  | 4.3  | 72.2  | 53.8  |
-| **NLX-GPT**         | **42.4** | **27.8** | **18.5** | **12.4** | 20.4  | **32.8** | **51.4** | **5.0** | **76.3** | 53.7  |
-| OFA-X               | 30.1  | 22.5  | 10.9  | 9.2   | 17.6  | 25.4  | 25.7  | 3.9  | 68.9  | 50.5  |
-| ReRe                | 34.0  | 21.2  | 13.8  | 9.0   | **20.8** | 29.4  | 35.5  | 4.2  | 74.9  | 47.5  |
-| **VMARC-QA (ours)** | 27.5  | 14.8  | 8.1   | 4.4   | 17.6  | 22.4  | 23.6  | 4.0  | 76.0  | **64.8** |
+<div align="center">
 
-## 📁 Repository Structure
+| Method              | B1   | B2   | B3   | B4   | M    | R-L  | C    | S   | BS   | Acc  |
+|:--------------------|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:---:|:----:|:----:|
+| Heuristic Baseline [5]  | 8.46 | 3.0  | 1.3  | 0.6  | 8.5  | 7.9  | 0.5  | 0.6 | 70.8 | 10.1 |
+| LSTM-Generative [5] | 22.6 | 11.7 | 6.2  | 3.2  | 16.4 | 23.7 | 34.1 | 4.3 | 72.2 | 53.8 |
+| **NLX-GPT** [21]        | **42.4** | **27.8** | **18.5** | **12.4** | 20.4 | **32.8** | **51.4** | **5.0** | **76.3** | 53.7 |
+| OFA-X [17]              | 30.1 | 22.5 | 10.9 | 9.2  | 17.6 | 25.4 | 25.7 | 3.9 | 68.9 | 50.5 |
+| ReRe [14]               | 34.0 | 21.2 | 13.8 | 9.0  | **20.8** | 29.4 | 35.5 | 4.2 | 74.9 | 47.5 |
+| **VMARC-QA (ours)** | 27.5 | 14.8 | 8.1  | 4.4  | 17.6 | 22.4 | 23.6 | 4.0 | 76.0 | **64.8** |
 
-The project is organized as follows:
+</div>
 
-```
-.
-├── src/
-│   ├── agents/          # Contains the logic for each agent (Junior, Senior, Manager).
-│   ├── core/            # Implements the core multi-agent graph using LangGraph.
-│   ├── models/          # Defines Pydantic models for state management.
-│   ├── tools/           # Houses tools for VQA and external knowledge retrieval.
-│   ├── utils/           # Includes utility functions and helper scripts.
-│   ├── evaluation/      # Scripts for evaluating model and agent performance.
-│   └── main.py          # Entry point for running the application.
-│
-├── ViVQA/               # Submodule containing the underlying Vietnamese VQA model implementation.
-│
-├── notebooks/           # Jupyter notebooks for experimentation and analysis.
-│
-├── .env.example         # Example environment file.
-└── requirements.txt     # Project dependencies.
-```
+## 🔬 Ablation Studies
+
+Our ablation studies validate the critical contributions of VMARC-QA's core architectural components.
+
+<div align="center">
+<table style="width:100%; border:none; border-collapse:collapse;">
+  <tr style="border:none;">
+    <td valign="top" width="50%" style="padding: 0 15px; border:none;">
+
+### 1. Effectiveness of the Multi-Agent Architecture
+This study analyzes the performance of the full framework against single-agent configurations. The results demonstrate the effectiveness of our collaborative approach, showing that the complete framework outperforms any individual agent. There is a clear trade-off: simpler agents achieve higher accuracy, while advanced agents produce better explanations. Our consensus mechanism successfully integrates these complementary strengths to achieve the best overall performance.
+
+<div align="center">
+
+| Method              | Acc (%) | BS   |
+|:--------------------|:-------:|:----:|
+| **VMARC-QA (Full)** | **64.80** | **76.0** |
+| Junior only         |  63.46  | 68.0 |
+| Senior only         |  63.34  | 70.4 |
+| Manager only        |  57.16  | 72.3 |
+
+</div>
+</td>
+<td valign="top" width="50%" style="padding: 0 15px; border:none;">
+
+### 2. Importance of the Visual Tool (Object Analyzer)
+To empirically validate the need for fine-grained visual details, we replaced our VLM-based `Object Analyzer` with a tool that sources knowledge from a text-only LLM. The results confirm that a dedicated visual grounding module is significantly more effective, yielding a **3.4% absolute accuracy gain** and demonstrating that relying solely on textual information is insufficient for this task.
+
+<div align="center">
+
+| Model Configuration                   | Overall (%) | Yes/No (%) | Other (%) |
+|:--------------------------------------|:-----------:|:----------:|:---------:|
+| **VMARC-QA (w/ Object Analyzer)** |   **64.8** |   **64.5** |  **65.2** |
+| VMARC-QA (w/ LLM Knowledge)           |     61.4    |     61.2   |    61.6   |
+
+</div>
+</td>
+  </tr>
+</table>
+</div>
+
+
 
 ## 📜 Citation
 
-If this project is based on a research paper, add the BibTeX citation information here.
+If you use the code or methods from this work in your research, please cite our paper:
+
+```
+```
+
 
 ## 📝 License
 
