@@ -35,35 +35,24 @@ This section provides a complete, step-by-step guide to setting up a clean envir
 
 ### 2. Installation
 
-#### For ViVqa tool
-To ensure a conflict-free setup, please follow these steps precisely.
-
-**Step A: Create and Activate a New Conda Environment**
-```bash
-# Create a new conda environment named 'vivqa-minh' with Python 3.10
-conda create -n vivqa-minh python=3.10 -y
-
-# Activate the new environment
-conda activate vivqa-minh
-```
-
-**Step B: Clone the Repository**
 ```bash
 # Clone the repository and navigate into the directory
-git clone https://github.com/T-Sunm/Visual-Multi-Agent-Knowledge-QA-.git
+git clone --recurse-submodules https://github.com/T-Sunm/Visual-Multi-Agent-Knowledge-QA-.git
 cd Visual-Multi-Agent-Knowledge-QA-
 ```
 
-**Step C: Manual Package Installation**
-
-Due to conflicting dependencies when using vivqa tool, you **must** install packages in the following specific order.
+**Step A: for main gpraph**
 ```bash
-1. pip install timm underthesea efficientnet_pytorch transformers
-2. pip install salesforce-lavis
-3. pip install torchscale
+# Create a new conda environment named 'vivqa-minh' with Python 3.10
+conda create -n vivqa-minh python=3.10 -y
+conda activate vivqa-minh
+pip install -r requirements
 ```
-**Step D: Fastapi Package Installation**
+**Step B: for vqa-tool**
 ```bash
+cd ViVQA-X
+conda create -n mak_vivqax_lstm
+pip install -r requirements
 pip install fastapi==0.115.12 uvicorn[standard]==0.34.2 python-multipart
 ```
 ### 3. Usage
@@ -85,18 +74,16 @@ vllm serve Qwen/Qwen3-1.7B \
   --tool-call-parser hermes \
   --trust-remote-code
 ```
+
+starte tool 1: use conda name: mak_vivqax_lstm
 ```bash
-#command to run eval-lstm-cnn
-python script/eval_checkpoint_vivqax.py \
-  --json_path /mnt/VLAI_data/ViVQA-X/ViVQA-X_test.json \
-  --image_dir /mnt/VLAI_data/COCO_Images/val2014/ \
-  --gpu 2 --device cuda --batch_size 32 --num_workers 4 \
-  --limit 300 --out ./vivqax_eval_val_300.json
+cd api
+python main.py
 ```
 
-#### Step 3b: Run a Sample Query
+#### Step 3b: Run Sampls Query
 Once the environment is set up (and the local LLM server is running, if applicable), you can run a query from the command line.
-
+Go to scripts/full_system.sh, change --samples is num sample you want to test. if set = 0 is run full sample, else is num_sample you want run 
 ```bash
 bash scripts/full_system.sh
 ```
@@ -126,11 +113,9 @@ The project is organized as follows:
 
 ## 📊 Dataset
 
-This system is designed to work with Vietnamese VQA datasets. The integrated `ViVQA` model was trained on **ViVQA** and **ViVQA-X**, which uses images from the MS COCO dataset.
+This system is designed to work with Vietnamese VQA datasets. The integrated **ViVQA-X**, which uses images from the MS COCO dataset.
 
 ### Data Aquisition
-- For information on the dataset and the underlying model, please refer to the original repository: [ngocson1042002/ViVQA](https://github.com/ngocson1042002/ViVQA).
-- You will need to acquire the MS COCO image dataset and the corresponding Vietnamese question/answer files.
 
 ### Expected Structure
 The scripts expect the data to be organized in a specific structure. The code often references a root directory like `/mnt/VLAI_data/`. A typical structure would be:
@@ -145,21 +130,6 @@ The scripts expect the data to be organized in a specific structure. The code of
     └── ViVQA-X_val.json
 ```
 
-## 🔧 Training & Evaluation
-
-This section provides instructions for training the model and evaluating system performance.
-
-### Training
-```bash
-# Command to start the training process
-python ViVQA/beit3/HCMUS/main.py --train-path ... --val-path ...
-```
-
-### Evaluation
-```bash
-# Command to run evaluation tests
-python -m pytest src/evaluation/
-```
 ## 📊 Results
 
 Performance comparison on the **ViVQA-X test set**.  
