@@ -21,7 +21,7 @@ On the **ViVQA-X** benchmark, VMARC-QA demonstrates exceptional performance in a
 
 The overall architecture of VMARC-QA is shown in the figure below:
 
-![Framework](./assets/Fullpipeline.pdf)
+![Framework](./assets/Fullpipeline.png)
 *Figure 1: Overview of the VMARC-QA Framework. Three agents independently generate answer-rationale pairs, which are then aggregated by a dual-stream consensus mechanism to produce the final output.*
 
 ## Table of Contents
