@@ -40,7 +40,6 @@ The overall architecture of VMARC-QA is shown in the figure below:
 - [Data Preparation](#-data-preparation)
 - [Usage](#️-usage)
 - [Results](#-results)
-- [Ablation Studies](#-ablation-studies)
 - [Citation](#-citation)
 - [License](#-license)
 
@@ -216,48 +215,6 @@ Performance comparison on the ViVQA-X test set. Our method establishes a new sta
 | **VMARC-QA (ours)** | 27.5 | 14.8 | 8.1  | 4.4  | 17.6 | 22.4 | 23.6 | 4.0 | 76.0 | **64.8** |
 
 </div>
-
-## 🔬 Ablation Studies
-
-Our ablation studies validate the critical contributions of VMARC-QA's core architectural components.
-
-<div align="center">
-<table style="width:100%; border:none; border-collapse:collapse;">
-  <tr style="border:none;">
-    <td valign="top" width="50%" style="padding: 0 15px; border:none;">
-
-### 1. Effectiveness of the Multi-Agent Architecture
-This study analyzes the performance of the full framework against single-agent configurations. The results demonstrate the effectiveness of our collaborative approach, showing that the complete framework outperforms any individual agent. There is a clear trade-off: simpler agents achieve higher accuracy, while advanced agents produce better explanations. Our consensus mechanism successfully integrates these complementary strengths to achieve the best overall performance.
-
-<div align="center">
-
-| Method              | Acc (%) | BS   |
-|:--------------------|:-------:|:----:|
-| **VMARC-QA (Full)** | **64.80** | **76.0** |
-| Junior only         |  63.46  | 68.0 |
-| Senior only         |  63.34  | 70.4 |
-| Manager only        |  57.16  | 72.3 |
-
-</div>
-</td>
-<td valign="top" width="50%" style="padding: 0 15px; border:none;">
-
-### 2. Importance of the Visual Tool (Object Analyzer)
-To empirically validate the need for fine-grained visual details, we replaced our VLM-based `Object Analyzer` with a tool that sources knowledge from a text-only LLM. The results confirm that a dedicated visual grounding module is significantly more effective, yielding a **3.4% absolute accuracy gain** and demonstrating that relying solely on textual information is insufficient for this task.
-
-<div align="center">
-
-| Model Configuration                   | Overall (%) | Yes/No (%) | Other (%) |
-|:--------------------------------------|:-----------:|:----------:|:---------:|
-| **VMARC-QA (w/ Object Analyzer)** |   **64.8** |   **64.5** |  **65.2** |
-| VMARC-QA (w/ LLM Knowledge)           |     61.4    |     61.2   |    61.6   |
-
-</div>
-</td>
-  </tr>
-</table>
-</div>
-
 
 
 ## 📜 Citation
