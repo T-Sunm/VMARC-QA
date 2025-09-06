@@ -4,9 +4,9 @@ from src.tools.knowledge_tools import arxiv, wikipedia
 from src.tools.vqa_tool import vqa_tool, lm_knowledge, dam_caption_image_tool
 
 class FullSystemVQAXExperiment(BaseExperiment):
-    def __init__(self, sample_size: int = None):
+    def __init__(self, sample_size: int, test_json_path: str, test_image_dir: str):
         self.experiment_name = "full_system"
-        super().__init__(sample_size)
+        super().__init__(sample_size, test_json_path, test_image_dir)
     
     def setup_system(self):
         """Setup complete multi-agent system"""

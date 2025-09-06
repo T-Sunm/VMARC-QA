@@ -25,15 +25,19 @@ The overall architecture of VMARC-QA is shown in the figure below:
 *Figure 1: Overview of the VMARC-QA Framework. Three agents independently generate answer-rationale pairs, which are then aggregated by a dual-stream consensus mechanism to produce the final output.*
 
 ## Table of Contents
-* [🚀 Quick Start](#-quick-start)
-* [⚙️ Installation](#️-installation)
-* [📦 Data Preparation](#-data-preparation)
-* [▶️ Usage](#️-usage)
-* [📊 Evaluation](#-evaluation)
-* [📈 Results](#-results)
-* [📁 Repository Structure](#-repository-structure)
-* [📜 Citation](#-citation)
-* [📝 License](#-license)
+- [Introduction](#-introduction)
+- [Data Preparation](#-data-preparation)
+- [Quick Start](#-quick-start)
+- [Installation](#️-installation)
+- [Usage](#️-usage)
+  - [Step 1: Run the VQA Tool Server](#step-1-run-the-vqa-tool-server)
+  - [Step 2: Run the LLM Server (for Local Models)](#step-2-run-the-llm-server-for-local-models)
+  - [Step 3: Run Sample Query](#step-3-run-sample-query)
+- [Evaluation](#-evaluation)
+- [Results](#-results)
+- [Repository Structure](#-repository-structure)
+- [Citation](#-citation)
+- [License](#-license)
 
 ## 🚀 Quick Start
 
@@ -90,22 +94,45 @@ pip install fastapi==0.115.12 uvicorn[standard]==0.34.2 python-multipart
 
 ## 📦 Data Preparation
 
-This system is designed to work with Vietnamese VQA datasets. The integrated **ViVQA-X**, which uses images from the MS COCO dataset.
+The VMARC-QA system is evaluated on the **ViVQA-X** dataset, which utilizes images from the MS COCO 2014 dataset. The annotation files are included in the `ViVQA-X` submodule.
 
-### Data Aquisition
-*(TODO: Add instructions or scripts for downloading the data.)*
+### 1. Create Data Directory
+First, create a `data` directory inside the project root to store all datasets.
 
-### Expected Structure
-The scripts expect the data to be organized in a specific structure. The code often references a root directory like `/mnt/VLAI_data/`. A typical structure would be:
+```bash
+mkdir -p data/COCO_Images data/ViVQA-X
 ```
-/path/to/your/data/
-├── COCO_Images/
-│   ├── train2014/
-│   └── val2014/
-│
-└── ViVQA-X/
-    ├── ViVQA-X_train.json
-    └── ViVQA-X_val.json
+
+### 2. Download COCO 2014 Images
+Download the validation set (`val2014`) into the newly created directory.
+
+```bash
+# Download and unzip the Validation 2014 images (~6GB)
+wget http://images.cocodataset.org/zips/val2014.zip -P data/
+unzip data/val2014.zip -d data/COCO_Images/
+rm data/val2014.zip
+```
+
+### 3. Set Up ViVQA-X Annotations
+Copy the required annotation file (`ViVQA-X_test.json`) from the submodule into your `data` directory.
+
+```bash
+# Copy the annotation file from the submodule
+cp ViVQA-X/data/final/ViVQA-X_test.json data/ViVQA-X/
+```
+
+### 4. Final Directory Structure
+Your project directory should now look like this:
+
+```
+Visual-Multi-Agent-Knowledge-QA-/
+├── data/
+│   ├── COCO_Images/
+│   │   └── val2014/
+│   │       ├── COCO_val2014_000000000042.jpg
+│   │       └── ...
+│   └── ViVQA-X/
+│       └── ViVQA-X_test.json
 ```
 
 ## ▶️ Usage
@@ -139,9 +166,22 @@ vllm serve Qwen/Qwen3-1.7B \
 ```
 
 ### Step 3: Run Sample Query
-Once the environment is set up and servers are running, you can run a query from the command line.
+Once the environment is set up and servers are running, you can run a query using the provided shell script.
 
-Go to `scripts/full_system.sh`, change `--samples` to the number of samples you want to test. If set to `0`, it will run on the full dataset.
+The `scripts/full_system.sh` script is the recommended way to run an experiment. Open this file to configure your run:
+1.  **Set the number of samples**: Change the `SAMPLES` variable. Set it to `0` to run on the full dataset.
+2.  **Set data paths**: The script defaults to using the `data/` directory inside the project. If you have stored your data elsewhere, you can uncomment and edit the `TEST_JSON_PATH` and `TEST_IMAGE_DIR` variables.
+
+For example, to use data stored in `/mnt/VLAI_data/`, you would edit the script as follows:
+```bash
+# --- Custom Data Paths (Optional) ---
+# If your data is located elsewhere, uncomment and modify the lines below.
+# For example:
+TEST_JSON_PATH="/mnt/VLAI_data/ViVQA-X/ViVQA-X_test.json"
+TEST_IMAGE_DIR="/mnt/VLAI_data/COCO_Images/val2014/"
+```
+
+After configuring the script, execute it from the project's root directory:
 ```bash
 bash scripts/full_system.sh
 ```
@@ -193,3 +233,4 @@ If this project is based on a research paper, add the BibTeX citation informatio
 ## 📝 License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details. 
+

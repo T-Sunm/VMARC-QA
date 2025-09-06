@@ -17,8 +17,10 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 class BaseExperiment(ABC):
-    def __init__(self, sample_size: int = None):
+    def __init__(self, sample_size: int = None, test_json_path: str = None, test_image_dir: str = None):
         self.sample_size = sample_size
+        self.test_json_path = test_json_path
+        self.test_image_dir = test_image_dir
         self.evaluator = VQAXEvaluator()
         
         # Create results directory
@@ -30,8 +32,13 @@ class BaseExperiment(ABC):
         
     def load_data(self) -> List[Dict]:
         """Load ViVQA-X dataset"""
-        json_path = "/mnt/VLAI_data/ViVQA-X/ViVQA-X_test.json"
-        coco_img_dir = "/mnt/VLAI_data/COCO_Images/val2014/"
+        json_path = self.test_json_path
+        coco_img_dir = self.test_image_dir
+        
+        if not json_path or not os.path.exists(json_path):
+            raise FileNotFoundError(f"JSON file not found at: {json_path}")
+        if not coco_img_dir or not os.path.exists(coco_img_dir):
+            raise FileNotFoundError(f"Image directory not found at: {coco_img_dir}")
         
         with open(json_path, "r", encoding="utf-8") as f:
             data = json.load(f)
