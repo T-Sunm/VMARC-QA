@@ -140,9 +140,7 @@ Visual-Multi-Agent-Knowledge-QA-/
 │       └── ViVQA-X_test.json
 ```
 
-````markdown
 ## ▶️ Usage
-
 The VMARC-QA system consists of multiple components. Follow these steps to run a full experiment.
 
 ### Step 1: Run the VQA Tool Server
@@ -153,7 +151,7 @@ Open a terminal, activate the `vmarc-qa-tool` environment, and start the API ser
 conda activate vmarc-qa-tool
 cd ViVQA-X/api
 python main.py
-````
+```
 
 This server provides the **Aligned Candidate Generator** tool to the agents.
 
