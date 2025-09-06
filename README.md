@@ -104,8 +104,6 @@ Follow the steps in the [🚀 Quick Start](#-quick-start) section to install the
 
 VMARC-QA is evaluated on the **ViVQA-X** dataset, which uses images from MS COCO 2014.
 
----
-
 ### 1. Download COCO 2014 Images
 
 Create a `data` directory and download the `val2014` image set:
@@ -147,8 +145,6 @@ Visual-Multi-Agent-Knowledge-QA-/
 
 The VMARC-QA system consists of multiple components. Follow these steps to run a full experiment.
 
----
-
 ### Step 1: Run the VQA Tool Server
 
 Open a terminal, activate the `vmarc-qa-tool` environment, and start the API server from the **ViVQA-X** submodule directory.
@@ -160,8 +156,6 @@ python main.py
 ````
 
 This server provides the **Aligned Candidate Generator** tool to the agents.
-
----
 
 ### Step 2: Run the LLM Server (Optional, for local models)
 
@@ -179,8 +173,6 @@ vllm serve Qwen/Qwen2-1.5B \
     --trust-remote-code
 ```
 
----
-
 ### Step 3: Run the Main Experiment
 
 Once the servers are ready, open another new terminal, activate the `vmarc-qa` environment, and run the main experiment script.
@@ -197,7 +189,6 @@ conda activate vmarc-qa
 bash scripts/full_system.sh
 ```
 
----
 
 ## 📈 Main Results
 
