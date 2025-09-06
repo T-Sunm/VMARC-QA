@@ -1,4 +1,4 @@
- VMARC-QA: A Knowledge-based Multi-agent Approach for Vietnamese VQA with Rationale Explanations
+ # VMARC-QA: A Knowledge-based Multi-agent Approach for Vietnamese VQA with Rationale Explanations
 
 <!-- [![Paper](https://img.shields.io/badge/Paper-PDF-b31b1b.svg)](https://github.com/T-Sunm/VMARC-QA/blob/main/2026_AICI_VMARC-QA.pdf) -->
 [![Code](https://img.shields.io/badge/GitHub-Repository-black)](https://github.com/T-Sunm/VMARC-QA)
